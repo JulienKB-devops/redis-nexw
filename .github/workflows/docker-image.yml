@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: echo "Salut ..." #docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: echo docker build . --file Dockerfile --tag julien-KB:$(date +%s)
