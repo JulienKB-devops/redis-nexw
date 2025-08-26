@@ -3,9 +3,9 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
-      security_opt:
-        - seccomp=unconfined
     image: julien-KB/redis:latest
+    security_opt:
+        - seccomp=unconfined
     container_name: redis
     restart: unless-stopped
     volumes:
