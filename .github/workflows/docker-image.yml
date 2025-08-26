@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: echo docker build . --file Dockerfile --tag julien-KB:$(date +%s)
+      run: docker compose build #docker build . --file Dockerfile --tag julien-KB:$(date +%s)
