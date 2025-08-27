@@ -11,8 +11,8 @@ jobs:
       - env-test-2
 
     steps:
-      #- name: Checkout repository
-        #uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Create target directory et file 
         run: mkdir -p ~/julien-test && touch ~/julien-test/compose.yml
