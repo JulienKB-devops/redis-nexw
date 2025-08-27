@@ -5,25 +5,39 @@ on:
 
 jobs:
 
-  run:
+  prepare:
     runs-on:
       - self-hosted
-      - env-test-2
-
+      - env-test-1
+    outputs:
+      target-dir: ~/julien-test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create target directory et file 
-        run: mkdir -p ~/julien-test && touch ~/julien-test/compose.yml
+      - name: Create target directory
+        run: mkdir -p ~/julien-test
 
-      - name: Copy compose.yml and redis.conf to ~/julien-test
+      - name: Copy compose.yml and redis.conf
         run: cp $PWD/compose.yml ~/julien-test/. && cp $PWD/redis.conf ~/julien-test/.
 
-      - name: Run the Docker container with compose
+  run:
+    runs-on:
+      - self-hosted
+      - env-test-2
+    needs: prepare
+    steps:
+      - name: Run Docker Compose
         run: |
           cd ~/julien-test
           docker compose up -d
 
+  verify:
+    runs-on:
+      - self-hosted
+      - env-test-1
+    needs: run
+    steps:
       - name: List only the started container
         run: docker ps --filter "name=redis-julien"
+
