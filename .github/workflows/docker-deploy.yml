@@ -11,8 +11,8 @@ jobs:
       - env-test-2
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      #- name: Checkout repository
+        #uses: actions/checkout@v4
 
       - name: Create target directory
         run: sudo mkdir -p /opt/julien-test
