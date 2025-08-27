@@ -32,5 +32,5 @@ jobs:
       - name: List running Docker Compose projects
         run: docker compose ls
 
-      - name: List Docker images
-        run: docker images
+      - name: List folder
+        run: pwd && ls -la
