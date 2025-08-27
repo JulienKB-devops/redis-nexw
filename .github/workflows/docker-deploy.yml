@@ -1,0 +1,29 @@
+name: Deploy Redis with Docker Compose
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  run:
+    runs-on:
+      - self-hosted
+      - env-test-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create target directory
+        run: sudo mkdir -p /opt/julien-test
+
+      - name: Copy compose.yml to /opt/julien-test
+        run: sudo cp $PWD/compose.yml /opt/julien-test/
+
+      - name: Run the Docker container with compose
+        run: |
+          cd /opt/julien-test
+          docker compose up -d
+
+      - name: List only the started container
+        run: docker ps --filter "name=redis-julien"
