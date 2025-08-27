@@ -8,7 +8,7 @@ jobs:
   run:
     runs-on:
       - self-hosted
-      - env-test-1
+      - env-test-2
 
     steps:
       - name: Checkout repository
