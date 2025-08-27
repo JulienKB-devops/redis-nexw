@@ -1,24 +1,18 @@
 services:
   redis:
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
     image: optimiste/redis:latest
-    container_name: redis
+    container_name: redis-julien
     restart: unless-stopped
     volumes:
       - redis:/data
       - ./redis.conf:/etc/redis/redis.conf
       - ./logs:/var/log/redis
-    ports:
-      - 6379:6379/tcp
     security_opt:
       - no-new-privileges:true
-      - seccomp=unconfined
 
 volumes:
   redis:
 
 networks:
   default:
-    name: redis
+    name: redis-julien
