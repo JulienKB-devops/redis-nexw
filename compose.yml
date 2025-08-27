@@ -6,7 +6,7 @@ services:
     volumes:
       - redis:/data
       - ./redis.conf:/etc/redis/redis.conf
-      - ./logs:/var/log/redis
+      #- ./logs:/var/log/redis
     security_opt:
       - no-new-privileges:true
 
