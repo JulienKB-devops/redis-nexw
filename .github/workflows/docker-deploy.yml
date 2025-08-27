@@ -14,15 +14,15 @@ jobs:
       #- name: Checkout repository
         #uses: actions/checkout@v4
 
-      - name: Create target directory
-        run: sudo mkdir -p /opt/julien-test
+      - name: Create target directory et file 
+        run: mkdir -p ~/julien-test && touch ~/julien-test/compose.yml
 
-      - name: Copy compose.yml to /opt/julien-test
-        run: sudo cp $PWD/compose.yml /opt/julien-test/
+      - name: Copy compose.yml to ~/julien-test
+        run: cp $PWD/compose.yml ~/julien-test/compose.yml
 
       - name: Run the Docker container with compose
         run: |
-          cd /opt/julien-test
+          cd ~/julien-test
           docker compose up -d
 
       - name: List only the started container
