@@ -14,7 +14,7 @@ services:
       - 6379:6379/tcp
     security_opt:
       - no-new-privileges:true
-      - seccomp=unconfined
+      #- seccomp=unconfined
 
 volumes:
   redis:
