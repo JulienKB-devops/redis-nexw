@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create target directory et file 
-        run: mkdir -p ~/julien-test && touch ~/julien-test/compose.yml && touch ~/julien-test/redis.conf
+        run: mkdir -p ~/julien-test && touch ~/julien-test/compose.yml
 
       - name: Copy compose.yml and redis.conf to ~/julien-test
-        run: cp $PWD/compose.yml ~/julien-test/compose.yml && cp $PWD/redis.conf ~/julien-test/redis.conf
+        run: cp $PWD/compose.yml ~/julien-test/. && cp $PWD/redis.conf ~/julien-test/.
 
       - name: Run the Docker container with compose
         run: |
