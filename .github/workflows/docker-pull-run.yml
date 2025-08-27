@@ -34,7 +34,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run the Docker container
-        run: docker run -d --name redis-test ${{ vars.DOCKERHUB_USERNAME }}/redis:latest
-
+        #run: docker run -d --name redis-test ${{ vars.DOCKERHUB_USERNAME }}/redis:latest
+        run: docker compose -f /home/julien/redis/compose.yml up -d
+        
       - name: List only the started container
         run: docker ps --filter "name=redis-test"
