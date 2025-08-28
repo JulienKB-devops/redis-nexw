@@ -42,51 +42,44 @@ jobs:
             -i ~/.ssh/id_ed25519 \
             ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} "echo ✅ Connected to remote Ubuntu"
 
+  rsync-deploy:
+    runs-on: 
+      - self-hosted
+      - env-test-1
+    needs: check-ssh
+    steps:
+      - name: Rsync files to remote server
+        run: |
           echo "📦 Deploying files with rsync..."
           rsync -avzr --delete --progress \
             -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} -i ~/.ssh/id_ed25519" \
             ./ \
             ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
 
+  docker-compose-deploy:
+    runs-on: 
+      - self-hosted
+      - env-test-2
+    needs: rsync-deploy
+    steps:
+      - name: Run Docker Compose on remote server
+        run: |
           echo "🐳 Starting Docker Compose on remote server..."
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
             -i ~/.ssh/id_ed25519 \
             ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
             "docker compose -f ${{ secrets.DEPLOY_PATH_L }}/compose.yml up -d"
 
-  #deploy:
-    #runs-on: 
-      #- self-hosted
-      #- env-test-1
-    #needs: check-ssh
-    #steps:
-      #- name: Checkout repository
-        #uses: actions/checkout@v4
-
-      #- name: Ensure rsync is installed
-        #run: |
-          #sudo dnf install -y rsync openssh-clients
-          #rsync --version
-
-      #- name: Rsync deployment to Ubuntu server (manual)
-        #run: |
-          # Préparer la clé privée
-          #source ~/.bashrc
-          #mkdir -p ~/.ssh
-          #echo "${{ secrets.DEPLOY_KEY_L }}" > ~/.ssh/id_ed25519
-          #chmod 600 ~/.ssh/id_ed25519
-
-          # Déploiement avec rsync
-          #rsync -avzr --delete --progress \
-            #-e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} -i ~/.ssh/id_ed25519" \
-            #./ \
-            #${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
-
-      #- name: Post-deploy verification on Ubuntu
-        #run: |
-          #echo "🔍 Vérification post-déploiement..."
-          #ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
-            #-i <(echo "${{ secrets.DEPLOY_KEY_L }}") \
-            #${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
-            #"ls -la ${{ secrets.DEPLOY_PATH_L }}"
-          #echo "🚀 Déploiement terminé avec succès"
+  docker-compose-verify:
+    runs-on:
+      - self-hosted
+      - env-test-1
+    needs: docker-compose-deploy
+    steps:
+      - name: Verify Docker Compose containers
+        run: |
+          echo "🔍 Vérification des containers Docker..."
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
+            -i ~/.ssh/id_ed25519 \
+            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
+            "docker compose -f ${{ secrets.DEPLOY_PATH_L }}/compose.yml ps"
