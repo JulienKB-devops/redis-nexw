@@ -29,7 +29,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push the Docker image
-        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:latest
+        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:1.0.0-debian
 
   cleanup:
     runs-on:
@@ -56,7 +56,7 @@ jobs:
     needs: cleanup
     steps:
       - name: Pull the Docker image from Docker Hub
-        run: docker pull ${{ vars.DOCKERHUB_USERNAME }}/redis:latest
+        run: docker pull ${{ vars.DOCKERHUB_USERNAME }}/redis:1.0.0-debian
 
       - name: List Docker images after pull
         run: docker images
