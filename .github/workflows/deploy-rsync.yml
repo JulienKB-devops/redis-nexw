@@ -40,24 +40,28 @@ jobs:
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
             -i <(echo "${{ secrets.DEPLOY_KEY_L }}") \
             ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} "echo ✅ Connected to remote Ubuntu"
+          # Déploiement avec rsync
+          rsync -avzr --delete --progress \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} -i ~/.ssh/id_ed25519" \
+            ./ \
+            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
 
-  deploy:
-    runs-on: 
-      - self-hosted
-      - env-test-1
-    needs: check-ssh
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #deploy:
+    #runs-on: 
+      #- self-hosted
+      #- env-test-1
+    #needs: check-ssh
+    #steps:
+      #- name: Checkout repository
+        #uses: actions/checkout@v4
 
-      - name: Ensure rsync is installed
-        run: |
-          sudo dnf install -y rsync openssh-clients
-          rsync --version
+      #- name: Ensure rsync is installed
+        #run: |
+          #sudo dnf install -y rsync openssh-clients
+          #rsync --version
 
-
-      - name: Rsync deployment to Ubuntu server (manual)
-        run: |
+      #- name: Rsync deployment to Ubuntu server (manual)
+        #run: |
           # Préparer la clé privée
           #source ~/.bashrc
           #mkdir -p ~/.ssh
@@ -65,17 +69,16 @@ jobs:
           #chmod 600 ~/.ssh/id_ed25519
 
           # Déploiement avec rsync
-          rsync -avzr --delete --progress \
-            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} -i ~/.ssh/id_ed25519" \
-            ./ \
-            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
+          #rsync -avzr --delete --progress \
+            #-e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} -i ~/.ssh/id_ed25519" \
+            #./ \
+            #${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
 
-
-      - name: Post-deploy verification on Ubuntu
-        run: |
-          echo "🔍 Vérification post-déploiement..."
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
-            -i <(echo "${{ secrets.DEPLOY_KEY_L }}") \
-            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
-            "ls -la ${{ secrets.DEPLOY_PATH_L }}"
-          echo "🚀 Déploiement terminé avec succès"
+      #- name: Post-deploy verification on Ubuntu
+        #run: |
+          #echo "🔍 Vérification post-déploiement..."
+          #ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
+            #-i <(echo "${{ secrets.DEPLOY_KEY_L }}") \
+            #${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
+            #"ls -la ${{ secrets.DEPLOY_PATH_L }}"
+          #echo "🚀 Déploiement terminé avec succès"
