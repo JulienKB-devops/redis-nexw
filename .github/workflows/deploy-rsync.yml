@@ -39,7 +39,7 @@ jobs:
           echo "🔑 Testing SSH connection..."
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
             -i <(echo "${{ secrets.DEPLOY_KEY_L }}") \
-            ${{ secrets.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} "echo ✅ Connected to remote Ubuntu"
+            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} "echo ✅ Connected to remote Ubuntu"
 
   deploy:
     runs-on: 
@@ -58,7 +58,7 @@ jobs:
           remote_path: ${{ secrets.DEPLOY_PATH_L }}
           remote_host: ${{ secrets.DEPLOY_HOST_L }}
           remote_port: ${{ secrets.DEPLOY_PORT_L }}
-          remote_user: ${{ secrets.DEPLOY_USER_L }}
+          remote_user: ${{ vars.DEPLOY_USER_L }}
           remote_key: ${{ secrets.DEPLOY_KEY_L }}
           #remote_key_pass: ${{ secrets.DEPLOY_KEY_PASS }}
 
@@ -67,6 +67,6 @@ jobs:
           echo "🔍 Vérification post-déploiement..."
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
             -i <(echo "${{ secrets.DEPLOY_KEY_L }}") \
-            ${{ secrets.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
+            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
             "ls -la ${{ secrets.DEPLOY_PATH_L }}"
           echo "🚀 Déploiement terminé avec succès"
