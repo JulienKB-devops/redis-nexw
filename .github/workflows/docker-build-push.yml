@@ -38,11 +38,11 @@ jobs:
     needs: push
     steps:
       - name: Remove the local Docker image
-        run: docker rmi ${{ vars.DOCKERHUB_USERNAME }}/redis:latest
+        run: docker rmi ${{ vars.DOCKERHUB_USERNAME }}/redis:redis:1.0.0-debian
 
       - name: Verify image removal
         run: |
-          if docker images | grep -q "${{ vars.DOCKERHUB_USERNAME }}/redis"; then
+          if docker images | grep -q "${{ vars.DOCKERHUB_USERNAME }}/redis:redis:1.0.0-debian"; then
             echo "Image still exists locally!"
             exit 1
           else
