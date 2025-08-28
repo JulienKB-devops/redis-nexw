@@ -1,5 +1,8 @@
 services:
   redis:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
     image: optimiste/redis:latest
     container_name: redis-julien
     restart: unless-stopped
