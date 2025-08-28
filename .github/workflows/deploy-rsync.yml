@@ -50,13 +50,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Ensure rsync is installed
+        run: |
+          sudo dnf install -y rsync openssh-clients
+          rsync --version
+
+
       - name: Rsync deployment to Ubuntu server (manual)
         run: |
           # Préparer la clé privée
-          source ~/.bashrc
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY_L }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          #source ~/.bashrc
+          #mkdir -p ~/.ssh
+          #echo "${{ secrets.DEPLOY_KEY_L }}" > ~/.ssh/id_ed25519
+          #chmod 600 ~/.ssh/id_ed25519
 
           # Déploiement avec rsync
           rsync -avzr --delete --progress \
