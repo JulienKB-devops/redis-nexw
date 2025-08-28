@@ -26,7 +26,8 @@ jobs:
         run: docker compose version
         
       - name: Build the Docker image
-        run: docker compose build #docker build . --file Dockerfile --tag julien-KB:$(date +%s)
+        run: docker compose build 
+          #docker build . --file Dockerfile --tag optimiste/redis:$(date +%s)
         #run: docker compose build --build-arg BUILDKIT_SYNTAX=docker/dockerfile:1 --progress=plain --no-cache --security-opt seccomp=unconfined
 
       - name: List running Docker Compose projects
