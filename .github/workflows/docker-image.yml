@@ -30,8 +30,5 @@ jobs:
           #docker build . --file Dockerfile --tag optimiste/redis:$(date +%s)
         #run: docker compose build --build-arg BUILDKIT_SYNTAX=docker/dockerfile:1 --progress=plain --no-cache --security-opt seccomp=unconfined
 
-      - name: List running Docker Compose projects
-        run: docker compose ls
-
-      - name: List folder
-        run: pwd && ls -la
+      - name: List Docker Images
+        run: docker images
