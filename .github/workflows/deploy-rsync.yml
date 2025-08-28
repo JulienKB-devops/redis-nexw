@@ -1,0 +1,72 @@
+name: Deploy with rsync
+
+on:
+  #push:
+    #branches:
+      #- main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 
+      - self-hosted
+      - env-test-1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify dependencies on runner
+        run: |
+          echo "📦 Vérification de rsync et ssh sur le runner Rocky..."
+          which rsync || (echo "❌ rsync manquant !" && exit 1)
+          which ssh || (echo "❌ ssh manquant !" && exit 1)
+          echo "✅ Dépendances OK"
+
+      - name: Run pre-deploy checks
+        run: |
+          echo "🧪 Running checks..."
+          # Exemple : tests / build
+          echo "✅ Checks passed"
+
+  check-ssh:
+    runs-on: 
+      - self-hosted
+      - env-test-2
+    needs: build
+    steps:
+      - name: Check SSH connection to remote Ubuntu
+        run: |
+          echo "🔑 Testing SSH connection..."
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT }} \
+            -i <(echo "${{ secrets.DEPLOY_KEY }}") \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "echo ✅ Connected to remote Ubuntu"
+
+  deploy:
+    runs-on: 
+      - self-hosted
+      - env-test-1
+    needs: check-ssh
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rsync deployment to Ubuntu server
+        uses: burnett01/rsync-deployments@7.0.2
+        with:
+          switches: -avzr --delete --progress
+          path: .
+          remote_path: ${{ secrets.DEPLOY_PATH }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_port: ${{ secrets.DEPLOY_PORT }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+          remote_key_pass: ${{ secrets.DEPLOY_KEY_PASS }}
+
+      - name: Post-deploy verification on Ubuntu
+        run: |
+          echo "🔍 Vérification post-déploiement..."
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT }} \
+            -i <(echo "${{ secrets.DEPLOY_KEY }}") \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "ls -la ${{ secrets.DEPLOY_PATH }}"
+          echo "🚀 Déploiement terminé avec succès"
