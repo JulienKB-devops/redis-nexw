@@ -50,17 +50,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Rsync deployment to Ubuntu server
-        uses: burnett01/rsync-deployments@7.0.2
-        with:
-          switches: -avzr --delete --progress
-          path: .
-          remote_path: ${{ secrets.DEPLOY_PATH_L }}
-          remote_host: ${{ secrets.DEPLOY_HOST_L }}
-          remote_port: ${{ secrets.DEPLOY_PORT_L }}
-          remote_user: ${{ vars.DEPLOY_USER_L }}
-          remote_key: ${{ secrets.DEPLOY_KEY_L }}
-          #remote_key_pass: ${{ secrets.DEPLOY_KEY_PASS }}
+      - name: Rsync deployment to Ubuntu server (manual)
+        run: |
+          # Préparer la clé privée
+          #mkdir -p ~/.ssh
+          #echo "${{ secrets.DEPLOY_KEY_L }}" > ~/.ssh/id_rsa
+          #chmod 600 ~/.ssh/id_rsa
+
+          # Déploiement avec rsync
+          rsync -avzr --delete --progress \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} -i ~/.ssh/id_ed25519" \
+            ./ \
+            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
+
 
       - name: Post-deploy verification on Ubuntu
         run: |
