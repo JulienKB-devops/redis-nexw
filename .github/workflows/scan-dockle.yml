@@ -31,7 +31,7 @@ jobs:
             > results/results_optimiste_redis_latest.json
 
       - name: Upload Dockle results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dockle-results
           path: results/
