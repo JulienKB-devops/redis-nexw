@@ -56,30 +56,4 @@ jobs:
             ./ \
             ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }}:${{ secrets.DEPLOY_PATH_L }}
 
-  docker-compose-deploy:
-    runs-on: 
-      - self-hosted
-      - env-test-2
-    needs: rsync-deploy
-    steps:
-      - name: Run Docker Compose on remote server
-        run: |
-          echo "🐳 Starting Docker Compose on remote server..."
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
-            -i ~/.ssh/id_ed25519 \
-            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
-            "docker compose -f ${{ secrets.DEPLOY_PATH_L }}/compose.yml up -d"
-
-  docker-compose-verify:
-    runs-on:
-      - self-hosted
-      - env-test-1
-    needs: docker-compose-deploy
-    steps:
-      - name: Verify Docker Compose containers
-        run: |
-          echo "🔍 Vérification des containers Docker..."
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT_L }} \
-            -i ~/.ssh/id_ed25519 \
-            ${{ vars.DEPLOY_USER_L }}@${{ secrets.DEPLOY_HOST_L }} \
-            "docker compose -f ${{ secrets.DEPLOY_PATH_L }}/compose.yml ps"
+  
