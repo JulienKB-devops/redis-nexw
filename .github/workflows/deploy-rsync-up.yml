@@ -1,4 +1,4 @@
-name: Deploy with rsync
+name: Deploy with rsync and Up service
 
 on:
   #push:
