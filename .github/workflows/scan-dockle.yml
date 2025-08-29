@@ -1,0 +1,37 @@
+name: Dockle Scan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dockle-scan:
+    runs-on: 
+      - self-hosted
+      - env-test-1  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create results folder
+        run: mkdir -p results
+
+      - name: Get latest Dockle version
+        id: dockle_version
+        run: |
+          LATEST=$(curl --silent "https://api.github.com/repos/goodwithtech/dockle/releases/latest" \
+            | grep '"tag_name":' \
+            | sed -E 's/.*"v([^"]+)".*/\1/')
+          echo "DOCKLE_LATEST=$LATEST" >> $GITHUB_ENV
+
+      - name: Scan image with Dockle
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            goodwithtech/dockle:v${DOCKLE_LATEST} \
+            -f json optimiste/redis:latest \
+            > results/results_optimiste_redis_latest.json
+
+      - name: Upload Dockle results
+        uses: actions/upload-artifact@v3
+        with:
+          name: dockle-results
+          path: results/
