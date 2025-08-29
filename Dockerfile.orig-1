@@ -26,17 +26,15 @@ RUN groupadd -r -g 999 redis && useradd -r -g redis -u 999 redis
 
 # Install Redis.
 COPY ./redis-stable.tar.gz /tmp/
-COPY ./redis.conf /tmp/
 
-# Définir /tmp comme répertoire de travail
-WORKDIR /tmp
-
-# Décompresser, compiler, installer, configurer et nettoyer en un seul RUN
-RUN tar xvzf redis-stable.tar.gz && \
-    bash -c "cd redis-stable && make BUILD_TLS=yes && make install" && \
+RUN cd /tmp && \
+    tar xvzf redis-stable.tar.gz && \
+    cd redis-stable && \
+    make BUILD_TLS=yes && \
+    make install && \
     mkdir -p /etc/redis /var/log/redis && \
-    cp /tmp/redis.conf /etc/redis/ && \
-    rm -rf /tmp/redis-stable* /tmp/redis.conf
+    cp redis.conf /etc/redis/ && \
+    rm -rf /tmp/redis-stable*
 
 COPY ./redis.conf /etc/redis
 
