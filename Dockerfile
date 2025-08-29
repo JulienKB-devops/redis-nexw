@@ -1,43 +1,62 @@
 # Pull base image.
 FROM debian:bookworm-slim
 
-#RUN apt-get update # -o APT::Sandbox::Seccomp=0 update (doit-être retirer)
-RUN apt-get -o APT::Sandbox::Seccomp=0 update
-RUN apt-get -o APT::Sandbox::Seccomp=0 install -y --no-install-recommends
-RUN apt-get -o APT::Sandbox::Seccomp=0 install -y locales iputils-ping curl wget ca-certificates dpkg-dev gcc libc6-dev libssl-dev make tzdata
+# Install packages in a single layer with proper cleanup
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        locales \
+        pkg-config \
+        wget \
+        ca-certificates \
+        dpkg-dev \
+        gcc \
+        g++ \
+        libc6-dev \
+        libssl-dev \
+        make \
+        tzdata \
+        tcl && \
+    rm -rf /var/lib/apt/lists/* && \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
-RUN rm -rf /var/lib/apt/lists/* \
-	&& localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.utf8
 
+# Create redis user and group
 RUN groupadd -r -g 999 redis && useradd -r -g redis -u 999 redis
 
 # Install Redis.
 COPY ./redis-stable.tar.gz /tmp/
 
-RUN \
-  cd /tmp && \
-  tar xvzf redis-stable.tar.gz && \
-  cd redis-stable && \
-  export BUILD_TLS=yes \
-  make && \
-  make install && \
-  mkdir -p /etc/redis /var/log/redis && \
-  cp -f *.conf /etc/redis && \
-  rm -rf /tmp/redis-stable*
+RUN cd /tmp && \
+    tar xvzf redis-stable.tar.gz && \
+    cd redis-stable && \
+    make BUILD_TLS=yes && \
+    make install && \
+    mkdir -p /etc/redis /var/log/redis && \
+    cp redis.conf /etc/redis/ && \
+    rm -rf /tmp/redis-stable*
 
 COPY ./redis.conf /etc/redis
 
-# Define mountable directories.
-RUN mkdir /data && chown redis:redis /data
+# Define mountable directories and set ownership
+RUN mkdir /data && \
+    chown redis:redis /data /etc/redis /var/log/redis
 
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD redis-cli ping || exit 1
+
+# Define mountable directories.
 VOLUME ["/data", "/etc/redis", "/var/log/redis"]
 
 # Define working directory.
 WORKDIR /data
 
-# Define default command.
-CMD ["redis-server", "/etc/redis/redis.conf"]
+# Switch to non-root user
+USER redis
 
 # Expose ports.
 EXPOSE 6379
+
+# Define default command.
+CMD ["redis-server", "/etc/redis/redis.conf"]
