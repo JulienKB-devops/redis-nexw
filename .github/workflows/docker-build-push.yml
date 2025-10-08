@@ -29,7 +29,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push the Docker image
-        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:1.0.0-debian
+        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
 
   cleanup:
     runs-on:
@@ -38,11 +38,11 @@ jobs:
     needs: push
     steps:
       - name: Remove the local Docker image
-        run: docker rmi ${{ vars.DOCKERHUB_USERNAME }}/redis:1.0.0-debian
+        run: docker rmi ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
 
       - name: Verify image removal
         run: |
-          if docker images | grep -q "${{ vars.DOCKERHUB_USERNAME }}/redis:redis:1.0.0-debian"; then
+          if docker images | grep -q "${{ vars.DOCKERHUB_USERNAME }}/redis:redis:3.0.1-debian"; then
             echo "Image still exists locally!"
             exit 1
           else
@@ -56,7 +56,7 @@ jobs:
     needs: cleanup
     steps:
       - name: Pull the Docker image from Docker Hub
-        run: docker pull ${{ vars.DOCKERHUB_USERNAME }}/redis:1.0.0-debian
+        run: docker pull ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
 
       - name: List Docker images after pull
         run: docker images
