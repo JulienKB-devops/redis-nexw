@@ -28,8 +28,8 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Push the Docker image
-        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
+      #- name: Push the Docker image
+        #run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
 
   example: 
     runs-on:
@@ -44,6 +44,25 @@ jobs:
           cosign-release: 'v2.6.0'
       - name: Check install!
         run: cosign version
+
+      - name: Générer la paire de clés Cosign
+        run: |
+          mkdir -p cosign-keys
+          cosign generate-key-pair --output-key-prefix=cosign-keys/cosign --yes
+
+      - name: Sauvegarder la clé publique comme artefact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cosign-public-key
+          path: cosign-keys/cosign.pub
+
+      # Facultatif : stocker la clé privée comme secret GitHub (si autorisé)
+      - name: Ajouter la clé privée comme secret GitHub (facultatif)
+        if: true  # Mets à `true` ou enlève cette ligne si tu veux l’activer
+        run: |
+          gh secret set COSIGN_PRIVATE_KEY < cosign-keys/cosign.key
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on:
