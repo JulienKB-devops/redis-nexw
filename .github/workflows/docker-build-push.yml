@@ -3,6 +3,9 @@ name: Docker Build & Push CI/CD
 on:
   workflow_dispatch:
 
+env:
+  IMAGE_NAME: optimiste/redis
+
 jobs:
 
   build:
@@ -13,8 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build the Docker image
-        run: docker compose build
+      #- name: Build the Docker image
+        #run: docker compose build
 
   push:
     runs-on:
@@ -28,6 +31,37 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Extract metadata (tags)
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest
+            type=semver,pattern={{version}}
+      
+      # Build et Push
+      - name: Build and push to Docker Hub
+        id: build-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      
+      # Signer l'image avec le digest
+      - name: Sign the Docker image
+        run: |
+          IMAGE_DIGEST="${{ steps.build-push.outputs.digest }}"
+          IMAGE_URL="${{ env.IMAGE_NAME }}@${IMAGE_DIGEST}"
+          
+          echo "🔏 Signing image: ${IMAGE_URL}"
+          cosign sign --yes ${IMAGE_URL}
+          echo "✅ Image signed successfully"
+      
       #- name: Push the Docker image
         #run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
 
@@ -62,14 +96,6 @@ jobs:
         with:
           name: cosign-public-key
           path: cosign-keys/cosign.pub
-
-      # Facultatif : stocker la clé privée comme secret GitHub (si autorisé)
-      - name: Ajouter la clé privée comme secret GitHub (facultatif)
-        if: true  # Mets à `true` ou enlève cette ligne si tu veux l’activer
-        run: |
-          gh secret set COSIGN_PRIVATE_KEY < cosign-keys/cosign.key
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   cleanup:
     runs-on:
