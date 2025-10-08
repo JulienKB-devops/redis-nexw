@@ -48,7 +48,14 @@ jobs:
       - name: Générer la paire de clés Cosign
         run: |
           mkdir -p cosign-keys
-          cosign generate-key-pair --output-key-prefix=cosign-keys/cosign --yes
+          # Vérifier si les clés existent déjà
+          if [ -f "cosign-keys/cosign.key" ]; then
+            echo "✅ Cosign keys already exist, skipping generation"
+          else
+            echo "🔑 Generating cosign key pair..."
+            cosign generate-key-pair --output-key-prefix=cosign-keys/cosign
+            echo "✅ Cosign keys generated"
+          fi
 
       - name: Sauvegarder la clé publique comme artefact
         uses: actions/upload-artifact@v4
