@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on:
       - self-hosted
-      - env-test-1
+      - label-1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
   push:
     runs-on:
       - self-hosted
-      - env-test-2
+      - label-2
     needs: build
     steps:
       - name: Login to Docker Hub
@@ -31,10 +31,23 @@ jobs:
       - name: Push the Docker image
         run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
 
+  example: 
+    runs-on:
+      - self-hosted
+      - label-1
+    name:  Install Cosign
+    steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.10.0
+        with:
+          cosign-release: 'v2.6.0'
+      - name: Check install!
+        run: cosign version
+
   cleanup:
     runs-on:
       - self-hosted
-      - env-test-1
+      - label-1
     needs: push
     steps:
       - name: Remove the local Docker image
@@ -52,7 +65,7 @@ jobs:
   pull:
     runs-on:
       - self-hosted
-      - env-test-2
+      - label-2
     needs: cleanup
     steps:
       - name: Pull the Docker image from Docker Hub
