@@ -30,6 +30,23 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      #- name: Push the Docker image
+        #run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
+
+  example: 
+    runs-on:
+      - self-hosted
+      - label-1
+    needs: push
+    name:  Install Cosign
+    steps:
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.10.0
+        with:
+          cosign-release: 'v2.6.0'
+      - name: Check install!
+        run: cosign version
 
       # Extract metadata (tags)
       - name: Extract metadata
@@ -61,23 +78,6 @@ jobs:
           echo "🔏 Signing image: ${IMAGE_URL}"
           cosign sign --yes ${IMAGE_URL}
           echo "✅ Image signed successfully"
-      
-      #- name: Push the Docker image
-        #run: docker push ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
-
-  example: 
-    runs-on:
-      - self-hosted
-      - label-1
-    needs: push
-    name:  Install Cosign
-    steps:
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.10.0
-        with:
-          cosign-release: 'v2.6.0'
-      - name: Check install!
-        run: cosign version
 
       - name: Générer la paire de clés Cosign
         run: |
