@@ -35,6 +35,7 @@ jobs:
     runs-on:
       - self-hosted
       - label-1
+    needs: push
     name:  Install Cosign
     steps:
       - name: Install Cosign
@@ -48,7 +49,7 @@ jobs:
     runs-on:
       - self-hosted
       - label-1
-    needs: push
+    needs: example
     steps:
       - name: Remove the local Docker image
         run: docker rmi ${{ vars.DOCKERHUB_USERNAME }}/redis:3.0.1-debian
