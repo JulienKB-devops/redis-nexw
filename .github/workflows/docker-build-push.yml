@@ -51,7 +51,7 @@ jobs:
           cosign generate-key-pair --output-key-prefix=cosign-keys/cosign --yes
 
       - name: Sauvegarder la clé publique comme artefact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cosign-public-key
           path: cosign-keys/cosign.pub
